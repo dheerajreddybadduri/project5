@@ -1,0 +1,141 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="MauiWeather.MVVM.Views.WeatherView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:converters="clr-namespace:MauiWeather.Converters"
+    xmlns:skia="clr-namespace:SkiaSharp.Extended.UI.Controls;assembly=SkiaSharp.Extended.UI"
+    Title="WeatherView" BackgroundColor="{DynamicResource Accent}">
+
+
+    <ContentPage.Resources>
+        <converters:CodeToWeatherConverter x:Key="CodeToWeatherConverter" />
+        <converters:CodeToLottieConverter x:Key="CodeToLottieConverter" />
+    </ContentPage.Resources>
+
+    <Grid Margin="5">    <Grid.RowDefinitions>
+        <RowDefinition Height="0.1*" />
+        <RowDefinition Height="0.15*" />
+        <RowDefinition Height="0.4*" />
+        <RowDefinition Height="0.15*" />
+        <RowDefinition Height="0.2*" />
+    </Grid.RowDefinitions> 
+
+<Grid>
+    <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+
+    <SearchBar
+        x:Name="searchBar"
+        Placeholder="Search Locations Ex: Chicago, Paris"
+        SearchCommand="{Binding SearchWeather}"
+        SearchCommandParameter="{Binding Source={x:Reference searchBar}, Path=Text}"
+        VerticalOptions="Center"
+        TextColor="Black"
+        BackgroundColor="White"
+        Margin="0,10,0,10"
+        FontAttributes="Bold"
+        FontFamily="Arial"/>
+
+    <Button
+        Grid.Row="1"
+        Text="Submit"
+        Command="{Binding SubmitCommand}"
+        BackgroundColor="Blue"
+        TextColor="White"
+        HorizontalOptions="FillAndExpand"
+        VerticalOptions="Center"
+        Margin="60,30,60,0"
+        FontSize="Large"
+        FontAttributes="Bold"
+        FontFamily="Arial"/>
+</Grid>
+
+<VerticalStackLayout
+    Grid.Row="1"
+    IsVisible="{Binding IsVisible}"
+    Style="{StaticResource MainStackLayout }">
+    <Label Style="{StaticResource Title}" Text="{Binding Location}" TextColor="LightCyan"/>
+    <Label Text="{Binding Date, StringFormat='{0:MMMM dd, yyyy}'}" FontFamily="arial" TextColor="BlanchedAlmond"/>
+</VerticalStackLayout>
+<skia:SKLottieView
+    Grid.Row="2"
+    RepeatCount="-1"
+    Source="{Binding WeatherConstraints.current_weather.weathercode, Converter={StaticResource CodeToLottieConverter}}" />
+<Grid
+    Grid.Row="3"
+    ColumnDefinitions="*,*,*"
+    IsVisible="{Binding IsVisible}">
+    <VerticalStackLayout HorizontalOptions="Center" Spacing="5">
+        <Label Style="{StaticResource WeatherTitle}" Text="Temp" FontSize="20" FontFamily="arial" TextColor="LightYellow"/>
+        <Label Style="{StaticResource WeatherValue}" Text="{Binding WeatherConstraints.current_weather.temperature, StringFormat='{0}°C'}" FontSize="24" />
+    </VerticalStackLayout>
+    <VerticalStackLayout
+        Grid.Column="1"
+        HorizontalOptions="Center"
+        Spacing="5">
+        <Label Style="{StaticResource WeatherTitle}" Text="Wind Sp" FontSize="20" FontFamily="arial" TextColor="LightYellow"/>
+        <Label Style="{StaticResource WeatherValue}" Text="{Binding WeatherConstraints.current_weather.windspeed, StringFormat='{0}Km/h'}" FontSize="24" />
+    </VerticalStackLayout>
+    <VerticalStackLayout
+        Grid.Column="2"
+        HorizontalOptions="Center"
+        Spacing="5">
+        <Label Style="{StaticResource WeatherTitle}" Text="Weather" FontSize="20" FontFamily="arial" TextColor="LightYellow"/>
+        <Label Style="{StaticResource WeatherValue}" Text="{Binding WeatherConstraints.current_weather.weathercode, Converter={StaticResource CodeToWeatherConverter}}" FontSize="24" />
+    </VerticalStackLayout>
+</Grid>
+
+
+        <CollectionView Grid.Row="4" ItemsSource="{Binding WeatherConstraints.day2}">
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout ItemSpacing="10" Orientation="Horizontal" />
+            </CollectionView.ItemsLayout>
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame >
+                        <VerticalStackLayout Spacing="5" VerticalOptions="Center">
+                            <skia:SKLottieView
+                                HeightRequest="50"
+                                IsAnimationEnabled="False"
+                                Source="{Binding weathercode, Converter={StaticResource CodeToLottieConverter}}"
+                                WidthRequest="50" />
+
+                            <Label Text="{Binding time}" TextColor="Green"  />
+                            <HorizontalStackLayout>
+                                <Label  WidthRequest="70" Text="MinTemp:" TextColor="{StaticResource Yellow100Accent}"  ></Label>
+                                <Label Text="{Binding  temperature_2m_min, StringFormat='{0}°C'}" TextColor="DodgerBlue"    />
+
+                            </HorizontalStackLayout>
+                            <HorizontalStackLayout>
+                                <Label  WidthRequest="70" Text="MaxTemp:" TextColor="{StaticResource Yellow100Accent}"
+                                        ></Label>
+
+                                <Label Text="{Binding temperature_2m_max, StringFormat='{0}°C'}" TextColor="DodgerBlue"    />
+                            </HorizontalStackLayout>
+
+
+                            <Label Text="{Binding weathercode, Converter={StaticResource CodeToWeatherConverter}}" TextColor="Brown"  />
+                        </VerticalStackLayout>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+
+        </CollectionView>
+
+
+        <Grid
+            Grid.RowSpan="5"
+            Margin="-15"
+            BackgroundColor="Black"
+            IsVisible="{Binding IsLoading}"
+            Opacity=".9">
+            <ActivityIndicator IsRunning="True" VerticalOptions="Center" />
+        </Grid>
+
+    </Grid>
+
+
+</ContentPage>
